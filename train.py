@@ -583,6 +583,62 @@ def main():
                                      is_best=is_best, name=checkpoint_name,
                                      dir=msglogger.logdir)
 
+            model_children = list(model.module.children())
+
+            ##### model partition kws20_v2 ########
+            '''module1 = model_children[:4]
+            module2 = model_children[4:]
+            m1 = nn.Sequential(*module1)
+            m2 = nn.Sequential(*module2)
+            
+            apputils.save_checkpoint(epoch, args.cnn, m1, optimizer=optimizer,
+                                     scheduler=compression_scheduler, extras=checkpoint_extras,
+                                     is_best=is_best, name='m1_kws_mp',
+                                     dir=msglogger.logdir)
+            apputils.save_checkpoint(epoch, args.cnn, m2, optimizer=optimizer,
+                                     scheduler=compression_scheduler, extras=checkpoint_extras,
+                                     is_best=is_best, name='m2_kws_mp',
+                                     dir=msglogger.logdir)
+            torch.save(model, "kws_mp.pt")
+            print("model saved")'''
+
+            ##### model partition images ########
+            '''module1 = model_children[:2]
+            module2 = model_children[2:]
+            m1 = nn.Sequential(*module1)
+            m2 = nn.Sequential(*module2)
+            #m2 = nn.Sequential(*[*module2, nn.Flatten(start_dim=1), model_children[-1]])
+            apputils.save_checkpoint(epoch, args.cnn, m1, optimizer=optimizer,
+                                     scheduler=compression_scheduler, extras=checkpoint_extras,
+                                     is_best=is_best, name='m1_mnist_mp',
+                                     dir=msglogger.logdir)
+            apputils.save_checkpoint(epoch, args.cnn, m2, optimizer=optimizer,
+                                     scheduler=compression_scheduler, extras=checkpoint_extras,
+                                     is_best=is_best, name='m2_mnist_mp',
+                                     dir=msglogger.logdir)
+            torch.save(model, "mnist_mp.pt")
+            print("model saved")'''
+
+            ##### workload partition images ########
+            module1 = model_children[:4]
+            module2 = model_children[4:]
+
+            m1 = nn.Sequential(*module1)
+            m2 = nn.Sequential(*module2)
+
+            apputils.save_checkpoint(epoch, args.cnn, m1, optimizer=optimizer,
+                                     scheduler=compression_scheduler, extras=checkpoint_extras,
+                                     is_best=is_best, name='m1_mnist_wp',
+                                     dir=msglogger.logdir)
+
+            apputils.save_checkpoint(epoch, args.cnn, m2, optimizer=optimizer,
+                                     scheduler=compression_scheduler, extras=checkpoint_extras,
+                                     is_best=is_best, name='m2_mnist_wp',
+                                     dir=msglogger.logdir)
+                                     
+            torch.save(model, "mnist_wp.pt")                         
+            print("model saved")
+
         if compression_scheduler:
             compression_scheduler.on_epoch_end(epoch, optimizer)
 
